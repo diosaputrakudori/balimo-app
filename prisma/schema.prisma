@@ -1,0 +1,47 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Villa {
+  id            String    @id @default(uuid())
+  name          String
+  description   String?
+  pricePerNight Decimal
+  capacity      Int
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relasi: 1 Villa memiliki banyak Booking
+  bookings      Booking[]
+
+  @@map("villas")
+}
+
+model Booking {
+  id          String    @id @default(uuid())
+  villaId     String
+  guestName   String
+  guestEmail  String
+  checkIn     DateTime
+  checkOut    DateTime
+  totalPrice  Decimal
+  status      BookingStatus @default(PENDING)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Relasi ke Villa
+  villa       Villa     @relation(fields: [villaId], references: [id], onDelete: Cascade)
+
+  @@map("bookings")
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+}
